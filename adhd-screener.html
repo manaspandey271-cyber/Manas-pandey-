@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adult ADHD Self-Screener</title>
+<style>
+  :root {
+    --ink: #1c2321;
+    --ink-soft: #4a534f;
+    --paper: #faf8f4;
+    --panel: #ffffff;
+    --line: #dcd6c9;
+    --teal: #33544c;
+    --teal-deep: #223b35;
+    --gold: #b8843c;
+    --gold-soft: #e9dcc0;
+    --shade-lo: #f1ead6;
+    --shade-hi: #b8843c;
+    --danger-bg: #f6ece2;
+    --focus: #33544c;
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --ink: #ece7dd;
+      --ink-soft: #b7b0a1;
+      --paper: #16201c;
+      --panel: #1c2723;
+      --line: #33413b;
+      --teal: #7fa89a;
+      --teal-deep: #a4c3b7;
+      --gold: #d9a75c;
+      --gold-soft: #3a3324;
+      --shade-lo: #2c2a1c;
+      --shade-hi: #d9a75c;
+      --danger-bg: #2c241c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #ece7dd;
+    --ink-soft: #b7b0a1;
+    --paper: #16201c;
+    --panel: #1c2723;
+    --line: #33413b;
+    --teal: #7fa89a;
+    --teal-deep: #a4c3b7;
+    --gold: #d9a75c;
+    --gold-soft: #3a3324;
+    --shade-lo: #2c2a1c;
+    --shade-hi: #d9a75c;
+    --danger-bg: #2c241c;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif; font-weight: 600; margin: 0; }
+  a { color: var(--teal-deep); }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  header.top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2.25rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .mark {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  header.top .mark span { color: var(--gold); }
+  header.top .tag {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Intro screen ---------- */
+  .intro h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    max-width: 20ch;
+  }
+  .intro .lede {
+    margin-top: 1rem;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+  .notice {
+    margin-top: 1.75rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--danger-bg);
+    border-left: 3px solid var(--gold);
+    border-radius: 2px;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .notice strong { color: var(--teal-deep); }
+  .about {
+    margin-top: 2rem;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .about .row {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+  }
+  .about .row .n {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    color: var(--gold);
+    font-weight: 600;
+    flex-shrink: 0;
+    width: 1.4rem;
+  }
+  .start-btn {
+    margin-top: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--teal);
+    color: var(--paper);
+    border: none;
+    padding: 0.85rem 1.6rem;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.98rem;
+    font-weight: 500;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .start-btn:hover { background: var(--teal-deep); }
+  .start-btn:active { transform: scale(0.98); }
+  .start-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+  /* ---------- Progress ---------- */
+  .progress-shell {
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.35s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.6rem;
+  }
+
+  /* ---------- Question screen ---------- */
+  .q-part {
+    font-size: 0.78rem;
+    text-transform: none;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+  }
+  .q-text {
+    font-size: 1.4rem;
+    line-height: 1.35;
+    max-width: 26ch;
+    margin-bottom: 2rem;
+  }
+  .options {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .opt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.95rem 1.15rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.98rem;
+    color: var(--ink);
+    transition: border-color 0.12s ease, background 0.12s ease;
+    text-align: left;
+  }
+  .opt:hover { border-color: var(--teal); }
+  .opt:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .opt .num {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .opt.selected {
+    border-color: var(--teal);
+    background: var(--gold-soft);
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.25rem;
+  }
+  .ghost-btn {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.5rem 0.2rem;
+  }
+  .ghost-btn:hover { color: var(--ink); }
+  .ghost-btn:disabled { opacity: 0.35; cursor: default; }
+  .ghost-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* ---------- Results ---------- */
+  .results h1 { font-size: 1.85rem; max-width: 22ch; }
+  .score-panel {
+    margin-top: 1.75rem;
+    padding: 1.5rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .score-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .score-row .big {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: var(--teal-deep);
+  }
+  .score-row .of {
+    font-size: 1rem;
+    color: var(--ink-soft);
+  }
+  .score-caption {
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .band {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.98rem;
+  }
+  .band .label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    margin-bottom: 0.7rem;
+    background: var(--gold-soft);
+    color: var(--teal-deep);
+  }
+  .part-b-note {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .disclaimer {
+    margin-top: 1.75rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--danger-bg);
+    border-left: 3px solid var(--gold);
+    border-radius: 2px;
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  .next-steps {
+    margin-top: 2rem;
+  }
+  .next-steps h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+  .next-steps ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+    display: grid;
+    gap: 0.5rem;
+  }
+  .restart-row {
+    margin-top: 2.25rem;
+    display: flex;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  footer.foot {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 420px) {
+    .q-text { font-size: 1.2rem; }
+    .score-row .big { font-size: 2.1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">ASRS<span>·</span>v1.1 Self-Screener</div>
+    <div class="tag" id="stepIndicator"></div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer class="foot">
+    Adapted from the World Health Organization Adult ADHD Self-Report Scale (ASRS-v1.1) Symptom Checklist. This tool is for personal reflection only and does not store or transmit your answers anywhere.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var PART_A = [
+    "How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?",
+    "How often do you have difficulty getting things in order when you have to do a task that requires organization?",
+    "How often do you have problems remembering appointments or obligations?",
+    "When you have a task that requires a lot of thought, how often do you avoid or delay getting started?",
+    "How often do you fidget or squirm with your hands or feet when you have to sit down for a long time?",
+    "How often do you feel overly active and compelled to do things, like you were driven by a motor?"
+  ];
+
+  var PART_B = [
+    "How often do you make careless mistakes when you have to work on a boring or difficult project?",
+    "How often do you have difficulty keeping your attention when you are doing boring or repetitive work?",
+    "How often do you have difficulty concentrating on what people say to you, even when they are speaking to you directly?",
+    "How often do you misplace or have difficulty finding things at home or at work?",
+    "How often are you distracted by activity or noise around you?",
+    "How often do you leave your seat in meetings or other situations in which you are expected to remain seated?",
+    "How often do you feel restless or fidgety?",
+    "How often do you have difficulty unwinding and relaxing when you have time to yourself?",
+    "How often do you find yourself talking too much in social situations?",
+    "When in a conversation, how often do you find yourself finishing the sentences of the people you are talking to, before they can finish themselves?",
+    "How often do you have difficulty waiting your turn in situations when turn taking is required?",
+    "How often do you interrupt others when they are busy?"
+  ];
+
+  var QUESTIONS = PART_A.map(function (t, i) { return { text: t, part: "A", index: i }; })
+    .concat(PART_B.map(function (t, i) { return { text: t, part: "B", index: i }; }));
+
+  var OPTIONS = ["Never", "Rarely", "Sometimes", "Often", "Very Often"];
+
+  // Shaded (clinically weighted) response index per Part-A question, 0-based into OPTIONS.
+  // A response at or above this index falls in the shaded scoring zone.
+  var PART_A_THRESHOLD = [2, 3, 3, 3, 3, 4]; // Sometimes, Often, Often, Often, Often, Very Often
+
+  var state = {
+    screen: "intro", // intro | question | results
+    qi: 0,
+    answers: new Array(QUESTIONS.length).fill(null)
+  };
+
+  var app = document.getElementById("app");
+  var stepIndicator = document.getElementById("stepIndicator");
+
+  function render() {
+    if (state.screen === "intro") return renderIntro();
+    if (state.screen === "question") return renderQuestion();
+    if (state.screen === "results") return renderResults();
+  }
+
+  function renderIntro() {
+    stepIndicator.textContent = "";
+    app.innerHTML =
+      '<div class="intro">' +
+        '<h1>A quick look at attention &amp; focus patterns</h1>' +
+        '<p class="lede">This is the ASRS-v1.1, the same 18-item checklist the World Health Organization developed with the American Psychiatric Association to help adults decide whether a full ADHD evaluation is worth pursuing. It takes about four minutes.</p>' +
+        '<div class="notice"><strong>This is a screener, not a diagnosis.</strong> It can only suggest whether symptoms are common enough to be worth discussing with a doctor or licensed clinician. Only a clinician can diagnose ADHD, usually through a longer interview, history, and sometimes input from family or partners.</div>' +
+        '<div class="about">' +
+          '<div class="row"><span class="n">1</span><span>You\'ll answer 18 questions about how often certain things have come up over the <em>past six months</em>.</span></div>' +
+          '<div class="row"><span class="n">2</span><span>For each, choose Never, Rarely, Sometimes, Often, or Very Often — there\'s no right answer, just your honest first instinct.</span></div>' +
+          '<div class="row"><span class="n">3</span><span>At the end you\'ll see your results and what they typically mean, plus suggested next steps either way.</span></div>' +
+        '</div>' +
+        '<button class="start-btn" id="startBtn">Begin the checklist</button>' +
+      '</div>';
+    document.getElementById("startBtn").addEventListener("click", function () {
+      state.screen = "question";
+      state.qi = 0;
+      render();
+    });
+  }
+
+  function renderQuestion() {
+    var total = QUESTIONS.length;
+    var qi = state.qi;
+    var q = QUESTIONS[qi];
+    var pct = Math.round((qi / total) * 100);
+
+    stepIndicator.textContent = "Question " + (qi + 1) + " of " + total;
+
+    var optsHtml = OPTIONS.map(function (label, idx) {
+      var selected = state.answers[qi] === idx;
+      return '<button class="opt' + (selected ? " selected" : "") + '" data-idx="' + idx + '" role="radio" aria-checked="' + selected + '">' +
+        '<span>' + label + '</span>' +
+        '<span class="num">' + (idx + 1) + '</span>' +
+      '</button>';
+    }).join("");
+
+    app.innerHTML =
+      '<div class="question">' +
+        '<div class="progress-label"><span>Part ' + q.part + '</span><span>' + pct + '%</span></div>' +
+        '<div class="progress-shell"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="q-text">' + q.text + '</div>' +
+        '<div class="options" role="radiogroup">' + optsHtml + '</div>' +
+        '<div class="nav-row">' +
+          '<button class="ghost-btn" id="backBtn"' + (qi === 0 ? " disabled" : "") + '>&larr; Back</button>' +
+          '<button class="ghost-btn" id="skipBtn">Skip &rarr;</button>' +
+        '</div>' +
+      '</div>';
+
+    var optButtons = app.querySelectorAll(".opt");
+    optButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var idx = parseInt(btn.getAttribute("data-idx"), 10);
+        state.answers[qi] = idx;
+        goNext();
+      });
+    });
+
+    document.getElementById("backBtn").addEventListener("click", function () {
+      if (qi > 0) { state.qi -= 1; render(); }
+    });
+    document.getElementById("skipBtn").addEventListener("click", function () {
+      goNext();
+    });
+  }
+
+  function goNext() {
+    if (state.qi < QUESTIONS.length - 1) {
+      state.qi += 1;
+      render();
+    } else {
+      state.screen = "results";
+      render();
+    }
+  }
+
+  function computeResults() {
+    var partAHits = 0;
+    var partAAnswered = 0;
+    var partBSum = 0;
+    var partBAnswered = 0;
+    var totalAnswered = 0;
+
+    QUESTIONS.forEach(function (q, i) {
+      var ans = state.answers[i];
+      if (ans === null || ans === undefined) return;
+      totalAnswered += 1;
+      if (q.part === "A") {
+        partAAnswered += 1;
+        if (ans >= PART_A_THRESHOLD[q.index]) partAHits += 1;
+      } else {
+        partBAnswered += 1;
+        partBSum += ans;
+      }
+    });
+
+    return {
+      partAHits: partAHits,
+      partAAnswered: partAAnswered,
+      partBSum: partBSum,
+      partBAnswered: partBAnswered,
+      totalAnswered: totalAnswered,
+      positive: partAHits >= 4
+    };
+  }
+
+  function renderResults() {
+    stepIndicator.textContent = "";
+    var r = computeResults();
+    var unanswered = QUESTIONS.length - r.totalAnswered;
+
+    var bandLabel, bandText;
+    if (r.partAAnswered < 6) {
+      bandLabel = "Incomplete";
+      bandText = "Part A wasn't fully answered, so a reliable reading isn't possible. The six Part A questions carry the most weight in this screener — consider retaking it and answering all of them.";
+    } else if (r.positive) {
+      bandLabel = "Consistent with further evaluation";
+      bandText = "Your Part A answers (" + r.partAHits + " of 6 in the flagged range) fall in the pattern the ASRS developers found most predictive of adult ADHD. That doesn't confirm a diagnosis — many things can produce a similar pattern, including stress, poor sleep, depression, anxiety, or thyroid issues — but it's a reasonable signal to bring to a doctor or licensed mental health professional for a proper evaluation.";
+    } else {
+      bandLabel = "Not strongly indicated";
+      bandText = "Your Part A answers (" + r.partAHits + " of 6 in the flagged range) don't fall into the pattern most associated with adult ADHD on this screener. If attention or organization is still genuinely affecting your life, that's still worth raising with a doctor — screeners like this one miss some real cases, especially if certain symptoms have been masked by routines or support you've built around them.";
+    }
+
+    app.innerHTML =
+      '<div class="results">' +
+        '<h1>Your results</h1>' +
+        '<div class="score-panel">' +
+          '<div class="score-row"><span class="big">' + r.partAHits + '</span><span class="of">/ 6 Part A responses in the flagged range</span></div>' +
+          '<div class="score-caption">Part B total: ' + r.partBSum + ' / 48 &mdash; used by clinicians as supporting context, not scored on its own</div>' +
+          '<div class="band">' +
+            '<span class="label">' + bandLabel + '</span>' +
+            '<p>' + bandText + '</p>' +
+          '</div>' +
+        '</div>' +
+
+        (unanswered > 0 ? '<p class="part-b-note">' + unanswered + ' question' + (unanswered === 1 ? " was" : "s were") + ' skipped and excluded from scoring.</p>' : '') +
+
+        '<div class="disclaimer"><strong>This is not a diagnosis.</strong> The ASRS is a screening instrument, not a diagnostic one. ADHD is diagnosed by a qualified clinician through a full clinical interview, developmental history, and rule-out of other explanations &mdash; never by a questionnaire score alone, and never by this tool.</div>' +
+
+        '<div class="next-steps">' +
+          '<h3>Whatever your result, reasonable next steps</h3>' +
+          '<ul>' +
+            '<li>Bring your answers to a primary care doctor, psychiatrist, or psychologist &mdash; the actual pattern of your responses is more useful to them than the summary score.</li>' +
+            '<li>Note when these patterns started. ADHD criteria require some symptoms to have been present before age 12, so a clinician will ask about childhood, not just now.</li>' +
+            '<li>If you\'re not currently struggling day-to-day, this result alone isn\'t a reason for concern &mdash; everyone recognizes some of these behaviors sometimes.</li>' +
+          '</ul>' +
+        '</div>' +
+
+        '<div class="restart-row">' +
+          '<button class="start-btn" id="retakeBtn">Retake the checklist</button>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById("retakeBtn").addEventListener("click", function () {
+      state.screen = "intro";
+      state.qi = 0;
+      state.answers = new Array(QUESTIONS.length).fill(null);
+      render();
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
